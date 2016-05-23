@@ -1,0 +1,14 @@
+---
+:products:
+  Red Hat Satellite Capsule Beta:
+    :repositories:
+    - Red Hat Satellite Capsule 6 Beta (for RHEL 7 Server) (RPMs):
+        :releasever: '7Server'
+        :basearch: 'x86_64'
+  Red Hat Satellite 6 Beta:
+    :repositories:
+    - Red Hat Satellite 6 Beta (for RHEL 7 Server) (RPMs):
+        :releasever: '7Server'
+        :basearch: 'x86_64'
+
+

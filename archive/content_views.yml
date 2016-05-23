@@ -1,0 +1,16 @@
+---
+:organization: 'Default Organization'
+:content_views:
+  :test_view1:
+    :label: 'RHEL7'
+    :description: 'RHEL7 Regular View'
+    :composite: 'false'
+    :repositories:
+      - 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'
+
+  :test_cc_view1:
+    :label: 'RHEL-Base'
+    :description: 'RHEL7 Composite View'
+    :composite: 'true'
+    :content_views:
+      - 'RHEL7'

@@ -1,0 +1,6 @@
+:products:
+  :product1:
+    :name: Red Hat Enterprise Linux
+    :repositories:
+      - 'Red Hat Enterprise Linux 7 Server (RPMs)'
+      - 'Red Hat Enterprise Linux 6 Server (RPMs)'

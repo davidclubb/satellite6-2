@@ -1,0 +1,17 @@
+---
+# satellite api parameters
+:rest_sat_server: '192.168.50.130'
+:rest_sat_default_suffix: '/katello/api/v2'
+:rest_content_type: 'json'
+:rest_return_type: 'json'
+:rest_api_user: 'admin'
+:rest_api_password: 'redhat'
+
+# rhn parameters
+:rhn_username: 'dustin.scott@rhn-cs'
+:rhn_password: 'R3dhat1!'
+:rhn_satellite_uuid: '9e264857-74b4-4657-9528-c77832caee9d'
+:rhn_base_url: 'https://subscription.rhn.redhat.com/subscription/consumers/'
+
+# environment parameters
+:organization: 'Default Organization'

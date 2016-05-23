@@ -1,0 +1,30 @@
+---
+:environments:
+  ENG:
+    :label: 'ENG'
+    :description: 'ENG'
+    :prior: 'Library'
+  TESTING:
+    :label: 'TQM'
+    :description: 'TESTING'
+    :prior: 'ENG'
+  STAGING:
+    :label: 'STAGING'
+    :description: 'STAGING'
+    :prior: 'TESTING'
+  DEV:
+    :label: 'DEV'
+    :description: 'DEV'
+    :prior: 'STAGING'
+  IT:
+    :label: 'IT'
+    :description: 'IT'
+    :prior: 'DEV'
+  UAT:
+    :label: 'UAT'
+    :description: 'UAT'
+    :prior: 'IT'
+  PROD:
+    :label: 'PROD'
+    :description: 'PROD'
+    :prior: 'UAT'

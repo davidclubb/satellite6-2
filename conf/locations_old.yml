@@ -1,0 +1,45 @@
+---
+:locations:
+  AM:
+    :description: 'Americas Region'
+    :children:
+      US:
+        :description: 'United States'
+        :parent: 'AM'
+      NYC:
+        :description: 'New York, NY'
+        :parent: 'AM/US'
+      RAG:
+        :description: 'Raleigh, NC'
+        :parent: 'AM/US'
+      DMZ:
+        :description: 'New York DMZ'
+        :parent: 'AM/US/NYC'
+  AP:
+    :description: 'Asia Pacific Region'
+    :children:
+      SG:
+        :description: 'Singapore'
+        :parent: 'AP'
+  CH:
+    :description: 'Switzerland Region'
+    :children:
+      DVsZ:
+        :description: 'Switzerland Development Zone'
+        :parent: 'CH'
+      ZH:
+        :description: 'Zurich'
+        :parent: 'ZH'
+  EA:
+    :description: 'Europe, Middle East, and Africa Region'
+    :children:
+      GB:
+        :description: 'Great Britain'
+        :parent: 'EA'
+      LON:
+        :description: 'London, England'
+        :parent: 'EA/GB'
+      DMZ:
+        :description: 'London DMZ'
+        :parent: 'EA/GB/LON'
+
