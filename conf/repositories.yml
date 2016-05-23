@@ -19,5 +19,10 @@
     :repositories:
     - Red Hat Satellite 6 Beta (for RHEL 7 Server) (RPMs):
         :basearch: 'x86_64'
+  Red Hat Software Collections for RHEL Server:
+    :repositories:
+    - Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server:
+        :releasever: '7Server'
+        :basearch: 'x86_64'
 
 

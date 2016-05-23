@@ -1,5 +1,6 @@
 #
 # Description: Creates content views in an organization
+# TODO: code cleanup...duplicating lots of code when doing composite vs standard views
 #
 
 begin
@@ -30,7 +31,10 @@ begin
   log(:info, "Setting variables for method: <#{@method}>")
 
   # get configuration
+  cv_config = YAML::load_file('../conf/content_views.yml')
 
+  # inspect the cv_config
+  log(:info, "Inspecting cv_config: #{cv_config.inspect}") if @debug == true
 
   # ====================================
   # begin main method
@@ -38,11 +42,6 @@ begin
 
   # log entering main method
   log(:info, "Running main portion of ruby code on method: <#{@method}>")
-
-  # get organization id
-  rest_response = build_rest(rest_base_url, 'organizations', :get, rest_content_type, rest_return_type, rest_api_user, rest_api_password, { :search => org_name })
-  org_id = rest_response['results'].first['id']
-  log(:info, "Found Organization #{org_name} with ID: #{org_id}") if @debug == true
 
   # create content views
   cv_config[:content_views].each do |view, attrs|
@@ -64,7 +63,7 @@ begin
 
       # get the content view ids from the yaml file and add them to the cv_ids array
       attrs[:content_views].each do |cv|
-        cv_id = build_rest(rest_base_url, "content_views", :get, rest_content_type, rest_return_type, rest_api_user, rest_api_password, { :name => cv, :organization_id => org_id })['results'].first['id']
+        cv_id = build_rest("content_views", :get, { :name => cv, :organization_id => @org_id })['results'].first['id']
         cv_ids.push(cv_id)
       end
 
@@ -72,8 +71,8 @@ begin
       payload[:name] = view
       payload[:component_ids] = cv_ids
     else
-      # log that we are creating a composite content view
-      log(:info, "Creating Composite Content View: <#{view}>")
+      # log that we are creating a standard content view
+      log(:info, "Creating Standard Content View: <#{view}>")
 
       # create an array for all repo ids
       repo_ids = []
@@ -81,7 +80,7 @@ begin
       # get the repository ids from the yaml file and add them to the repo_ids array
       attrs[:repositories].each do |repo|
         log(:info, "Finding repo_id for repository <#{repo}>")
-        repo_id = build_rest(rest_base_url, "repositories", :get, rest_content_type, rest_return_type, rest_api_user, rest_api_password, { :name => repo, :organization_id => org_id })['results'].first['id']
+        repo_id = build_rest("repositories", :get, { :name => repo, :organization_id => @org_id })['results'].first['id']
         repo_ids.push(repo_id)
       end
 
@@ -91,8 +90,14 @@ begin
     end
 
     # make the rest call to create the content view
-    cv_response = build_rest(rest_base_url, "organizations/#{org_id}/content_views", :post, rest_content_type, rest_return_type, rest_api_user, rest_api_password, payload)
-    log(:info, "Inspecting cv_response: #{cv_response.inspect}")
+    cv_response = build_rest("organizations/#{@org_id}/content_views", :post, payload) rescue nil
+    log(:info, "Inspecting cv_response: #{cv_response.inspect}") if @debug == true
+    log(:error, "Unable to create content view <#{view}>") if cv_response.nil?
+    cv_id = cv_response['id']
+
+    # publish the content view
+    pub_response = build_rest("content_views/#{cv_id}/publish", :post) rescue nil
+    log(:error, "Unable to publish content view <#{view}>") if pub_response.nil?
   end
 
   # ====================================

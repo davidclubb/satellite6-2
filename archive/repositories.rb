@@ -174,7 +174,7 @@ begin
 
   # get configuration
   repo_config = YAML::load_file('repositories.yml')
-  org_name = repo_config[:organization]
+  org_name = 'Default Organization'
 
   # inspect the repo_config
   log(:info, "Inspecting repo_config: #{repo_config.inspect}") if @debug == true
@@ -205,16 +205,20 @@ begin
         repo_id = build_rest(rest_base_url, "products/#{product_id}/repository_sets", :get, rest_content_type, rest_return_type, rest_api_user, rest_api_password, { :name => repo_name } )['results'].first['id']
         raise "Unable to determine repo_id" if repo_id.nil?
 
-        # get the repository attributes from the yaml file so we enable the correct repository
-        payload = {
-          :basearch => attrs[:basearch],
-          :releasever => attrs[:releasever]
-        }
-        payload.each { |k,v| raise "Unable to determine value for #{k}" if v.nil? }
+        index = 1
+        sync_state = 'Running'
+        until sync_state['Complete'] do
+          break if index == 150
+          log(:info, "Checking sync state, attempt #{index}")
+          sleep(20)
 
-        # enable the repository
-        repo_response = build_rest(rest_base_url, "products/#{product_id}/repository_sets/#{repo_id}/enable", :put, rest_content_type, rest_return_type, rest_api_user, rest_api_password, payload )
-        log(:info, "Inspecting repo_response: #{repo_response.inspect}")
+          # get the sync status
+          repo_response = build_rest(rest_base_url, "products/#{product_id}", :get, rest_content_type, rest_return_type, rest_api_user, rest_api_password) rescue nil
+          sync_state = repo_response['sync_state'] unless repo_response.nil?
+
+          index += 1
+          log(:info, "Sync State for <#{repo_name}> is: #{sync_state}")
+        end
       end
     end
   end

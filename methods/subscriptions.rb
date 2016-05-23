@@ -72,14 +72,14 @@ begin
   # upload the manifest to satellite server
   sat_params = {
       :method => :post,
-      :url => "#{@rest_base_url}organizations/#{@org_id}/subscriptions/upload",
+      :url => "https://172.16.177.185/katello/api/v2/organizations/#{@org_id}/subscriptions/upload",
       :verify_ssl => false,
       :headers => {
-          :authorization => "Basic #{Base64.strict_encode64("#{@rest_api_user}:#{@rest_api_password}")}"
+          :authorization => "Basic #{Base64.strict_encode64("#{'admin'}:#{'OMGwtf!!!OMGwtf111'}")}"
       },
       :payload => {
         :multipart => true,
-        :file => File.new(subscription_config[:manifest_file], 'rb')
+        :file => File.open(subscription_config[:manifest_file], 'rb')
       }
   }
 

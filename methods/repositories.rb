@@ -66,18 +66,18 @@ begin
         payload[:releasever] = attrs[:releasever] unless attrs[:releasever].nil?
 
         # enable the repository
-        repo_response = build_rest("products/#{product_id}/repository_sets/#{repo_id}/enable", :put, payload )
+        repo_response = build_rest("products/#{product_id}/repository_sets/#{repo_id}/enable", :put, payload ) rescue nil
         log(:info, "Inspecting repo_response: #{repo_response.inspect}")
+
+        # log an error if the repository enable failed
+        log(:error, "Unable to enable repository <#{repo_name}>") if repo_response.nil?
       end
-
-      # sync the products
-      sync_response = build_rest("products/#{product_id}/sync", :post)
-      log(:info, "Inspecting sync_response: #{sync_response.inspect}") if @debug == true
-
-      # get the product sync status
-      product_status = build_rest("organizations/#{@org_id}/products", :get, { :name => product })
-      puts product_status.inspect
     end
+
+    # sync the products
+    sync_response = build_rest("products/#{product_id}/sync", :post) rescue nil
+    log(:info, "Inspecting sync_response: #{sync_response.inspect}") if @debug == true
+    log(:error, "Unable to sync product <#{product}>") if sync_response.nil?
   end
 
   # ====================================

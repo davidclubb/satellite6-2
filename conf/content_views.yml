@@ -1,16 +1,17 @@
 ---
-:organization: 'Default Organization'
 :content_views:
-  :test_view1:
-    :label: 'RHEL7'
-    :description: 'RHEL7 Regular View'
+  :CV_Capsule:
+    :label: 'CV_Capsule'
+    :description: 'Satellite 6 Capsule Content View'
     :composite: 'false'
     :repositories:
       - 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'
-
-  :test_cc_view1:
-    :label: 'RHEL-Base'
-    :description: 'RHEL7 Composite View'
-    :composite: 'true'
-    :content_views:
-      - 'RHEL7'
+      - 'Red Hat Satellite Capsule 6 Beta for RHEL 7 Server RPMs x86_64'
+  :CV_Satellite:
+    :label: 'CV_Satellite'
+    :description: 'Satellite 6 Content View'
+    :composite: 'false'
+    :repositories:
+      - 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'
+      - 'Red Hat Satellite 6 Beta for RHEL 7 Server RPMs x86_64'
+      - 'Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server x86_64 7Server'
