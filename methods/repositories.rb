@@ -60,8 +60,13 @@ begin
         repo_id = repo['results'].first['id']
         raise "Unable to determine repo_id" if repo_id.nil?
 
+        # add payload data
+        payload = {}
+        payload[:basearch] = attrs[:basearch] unless attrs[:basearch].nil?
+        payload[:releasever] = attrs[:releasever] unless attrs[:releasever].nil?
+
         # enable the repository
-        repo_response = build_rest("products/#{product_id}/repository_sets/#{repo_id}/enable", :put, {:basearch => attrs[:basearch]} )
+        repo_response = build_rest("products/#{product_id}/repository_sets/#{repo_id}/enable", :put, payload )
         log(:info, "Inspecting repo_response: #{repo_response.inspect}")
       end
 
