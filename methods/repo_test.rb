@@ -50,8 +50,6 @@ begin
     log(:info, "Inspecting product: #{product.inspect}")
     product_id = product['results'].first['id']
 
-
-    puts this is a test
     # get the repo id and enable each repository
     repos[:repositories].each do |repo|
       repo.each do |repo_name, attrs|
