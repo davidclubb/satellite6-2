@@ -1,6 +1,6 @@
 #
 # Description: Creates content views in an organization
-# TODO: code cleanup...duplicating lots of code when doing composite vs standard views
+# TODO: code cleanup...duplicating lots of code
 #
 
 begin
@@ -57,6 +57,10 @@ begin
     cv_id = build_rest("content_views", :get, { :name => attrs[:content_view], :organization_id => @org_id })['results'].first['id']
     log(:info, "Found cv_id #{cv_id} for content view #{attrs[:content_view]}")
 
+    # ====================================
+    # create the activation key
+    # ====================================
+
     # create the payload data
     payload = {
       :name => key,
@@ -66,13 +70,76 @@ begin
       :content_view_id => cv_id
     }
 
-    # make the rest call to create the activation key
     # NOTE: content views must be available in lifecycle environments of the activation key for this to work
     # TODO: put in logic for the above NOTE
     ak_response = build_rest("activation_keys", :post, payload)
     log(:info, "Inspecting ak_response: #{ak_response.inspect}")
+    ak_id = ak_response['id']
 
-    # TODO: put in logic to update repos and subscriptions for newly created activation key
+    # ====================================
+    # add the subscriptions
+    # ====================================
+    attrs[:subscriptions].each do |sub, quantity|
+      # get the subscriptions
+      subs = build_rest("organizations/#{@org_id}/subscriptions", :get)['results']
+
+      # select only the subscriptions which match the name from the hash
+      subscription = subs.select { |s| s['product_name'] == sub }.first
+      sub_id = subscription['id']
+
+      # generate the payload data for the rest call
+      payload = {
+          :subscriptions => [
+              {
+                  :id => sub_id,
+                  :quantity => quantity
+              }
+          ]
+      }
+
+      # add the subscription with quantity to the activation key
+      sub_response = build_rest("activation_keys/#{ak_id}/add_subscriptions", :put, payload )
+    end
+
+    # ====================================
+    # enable appropriate product content
+    # ====================================
+
+    # get the product content available on the actvation key
+    content_response = build_rest("activation_keys/#{ak_id}/product_content", :get)['results']
+
+    # create an array of labels that are available to the key based on subscriptions
+    content_labels = []
+
+    # push each label into an array and ensure the labels are unique
+    content_response.each { |k,v| content_labels.push(k['content']['label']) }
+    content_labels = content_labels.uniq
+
+    # enable or disable the content based on our activation key configuration
+    content_labels.each do |label|
+      payload = {
+          :content_override => {
+              :content_label => label
+          }
+      }
+
+      # set the correct payload value
+      if attrs[:product_content][label] == 1
+        # override the content to ensure the repository is enabled
+        payload[:content_override][:value] = 1
+      else
+        # override the content to ensure the repository is disabled
+        payload[:content_override][:value] = 0
+      end
+
+      # make the call to enable or disable the content
+      content_response = build_rest("activation_keys/#{ak_id}/content_override", :put, payload)
+    end
+
+    # ====================================
+    # update the activation key releasever
+    # ====================================
+    ak_update = build_rest("activation_keys/#{ak_id}", :put, { :release_version => attrs[:releasever] }) if attrs[:releasever]
   end
 
   # ====================================

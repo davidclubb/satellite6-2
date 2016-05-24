@@ -7,9 +7,23 @@
     :description: 'Satellite Capsule Activation Key'
     :unlimited_content_hosts: 'true'
     :releasever: '7Server'
+    :subscriptions:
+      'Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)': 1
+      'Red Hat Satellite Capsule Beta': 1
+    :product_content:
+      'rhel-server-7-satellite-capsule-6-beta-rpms': 1
+      'rhel-7-server-rpms': 1
   AK_Satellite_PROD:
     :content_view: 'CV_Satellite6'
     :environment: 'PROD'
     :description: 'Satellite Activation Key'
     :unlimited_content_hosts: 'true'
     :releasever: '7Server'
+    :subscriptions:
+      'Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)': 1
+      'Red Hat Satellite Beta': 1
+      'Software Collections and Developer Toolset': 1
+    :product_content:
+      'rhel-server-7-satellite-6-beta-rpms': 1
+      'rhel-7-server-rpms': 1
+      'rhel-server-rhscl-7-rpms': 1

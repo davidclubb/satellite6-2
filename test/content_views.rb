@@ -59,22 +59,22 @@ begin
     # get appropriate content view information needed for the final rest call
     cv_response = build_rest("content_views", :get, { :name => view, :organization_id => @org_id })
     log(:info, "Inspecting cv_response: #{cv_response.inspect}") if @debug == true
-    cv_id = cv_response['results'].first['id']
-    cv_version = cv_response['results'].first['versions'].first['id']
+    #cv_id = cv_response['results'].first['id']
+    #"#{c}"v_version = cv_response['results'].first['versions'].first['id']
 
     # promote the content view to the final lifecycle environment
-    promote_response = build_rest("content_view_versions/#{cv_version}/promote", :post, JSON.generate( { :force => true, :environment_id => env_id } ) ) rescue nil
+    #promote_response = build_rest("content_view_versions/#{cv_version}/promote", :post, JSON.generate( { :force => true, :environment_id => env_id } ) ) rescue nil
 
     # get the task if we have a valid promote response
-    unless promote_response.nil?
-      task = promote_response['id']
-    else
-      log(:error, "Error promoting content view: #{view}")
-      break
-    end
+    #unless promote_response.nil?
+    #  task = promote_response['id']
+    #else
+    #  log(:error, "Error promoting content view: #{view}")
+    #  break
+    #end
 
     # keep looping until we have a success response from the task status
-    check_task(100, 20, task)
+    #check_task(100, 20, task)
   end
 
   # ====================================
