@@ -15,3 +15,4 @@
 
 # environment parameters
 :organization: 'Default Organization'
+:sat_os: 'RedHat 7.2'

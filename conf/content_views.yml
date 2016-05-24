@@ -1,14 +1,14 @@
 ---
 :content_views:
-  :CV_Capsule:
-    :label: 'CV_Capsule'
+  :CV_Capsule6:
+    :label: 'CV_Capsule6'
     :description: 'Satellite 6 Capsule Content View'
     :composite: 'false'
     :repositories:
       - 'Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server'
       - 'Red Hat Satellite Capsule 6 Beta for RHEL 7 Server RPMs x86_64'
-  :CV_Satellite:
-    :label: 'CV_Satellite'
+  :CV_Satellite6:
+    :label: 'CV_Satellite6'
     :description: 'Satellite 6 Content View'
     :composite: 'false'
     :repositories:

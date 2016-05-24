@@ -10,6 +10,7 @@ begin
 
   require_relative 'call_rest.rb'
   require_relative 'get_org_id.rb'
+  require_relative 'check_task.rb'
   require 'yaml'
 
   # ====================================
@@ -32,6 +33,7 @@ begin
 
   # get configuration
   cv_config = YAML::load_file('../conf/content_views.yml')
+  env_config = YAML::load_file('../conf/environments.yml')
 
   # inspect the cv_config
   log(:info, "Inspecting cv_config: #{cv_config.inspect}") if @debug == true
@@ -42,6 +44,11 @@ begin
 
   # log entering main method
   log(:info, "Running main portion of ruby code on method: <#{@method}>")
+
+  # get the last environment in the lifecycle enviornment
+  # NOTE: it will take too long to promote through the lifecycle, so we are skipping to the last one for initial setup
+  env = env_config[:environments].keys.last
+  env_id = build_rest("organizations/#{@org_id}/environments", :get, { :name => env } )['results'].first['id']
 
   # create content views
   cv_config[:content_views].each do |view, attrs|
@@ -91,13 +98,34 @@ begin
 
     # make the rest call to create the content view
     cv_response = build_rest("organizations/#{@org_id}/content_views", :post, payload) rescue nil
+    cv_id = cv_response['id']
     log(:info, "Inspecting cv_response: #{cv_response.inspect}") if @debug == true
     log(:error, "Unable to create content view <#{view}>") if cv_response.nil?
-    cv_id = cv_response['id']
 
     # publish the content view
     pub_response = build_rest("content_views/#{cv_id}/publish", :post) rescue nil
     log(:error, "Unable to publish content view <#{view}>") if pub_response.nil?
+    task = pub_response['id']
+
+    # check the status until the publish finishes
+    check_task(200, 20, task)
+
+    # get appropriate content view information needed for the final rest call
+    cv_ver = build_rest("content_views", :get, { :name => view, :organization_id => @org_id })['results'].first['versions'].first['id']
+
+    # promote the content view to the final lifecycle environment
+    promote_response = build_rest("content_view_versions/#{cv_ver}/promote", :post, { :force => true, :environment_id => env_id } ) rescue nil
+
+    # get the task if we have a valid promote response
+    unless promote_response.nil?
+      task = promote_response['id']
+    else
+      log(:error, "Error promoting content view: #{view}")
+      break
+    end
+
+    # check the status until the promote finishes
+    check_task(200, 20, task)
   end
 
   # ====================================

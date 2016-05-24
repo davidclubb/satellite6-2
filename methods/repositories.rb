@@ -78,6 +78,30 @@ begin
     sync_response = build_rest("products/#{product_id}/sync", :post) rescue nil
     log(:info, "Inspecting sync_response: #{sync_response.inspect}") if @debug == true
     log(:error, "Unable to sync product <#{product}>") if sync_response.nil?
+
+    # loop until the sync completes
+    # TODO: sleep is very baaaadddd...for a one-time setup, it might be ok...look at alternatives if there is time
+    index = 1
+    sync_state = 'Started'
+    until sync_state['Complete'] do
+      # sleep for 30 seconds
+      sleep(30)
+
+      # get the sync status
+      repo_response = build_rest("products/#{product_id}", :get) rescue nil
+      sync_state = repo_response['sync_state'] unless repo_response.nil?
+      if index == 300
+        break
+        log(:warn, "Reached attempt number #{index}.  Breaking.")
+      elsif repo_response.nil?
+        log(:error, "Unable to determine sync_state for product <#{product}>")
+        break
+      end
+
+      # log where we are at in the loop and that state and increment the counter
+      log(:info, "Attempt number #{index}: Sync State for <#{product}> is #{sync_state}")
+      index += 1
+    end
   end
 
   # ====================================

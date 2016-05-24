@@ -1,0 +1,15 @@
+---
+:organization: 'Default Organization'
+:keys:
+  AK_Capsule_PROD:
+    :content_view: 'CV_Capsule6'
+    :environment: 'PROD'
+    :description: 'Satellite Capsule Activation Key'
+    :unlimited_content_hosts: 'true'
+    :releasever: '7Server'
+  AK_Satellite_PROD:
+    :content_view: 'CV_Satellite6'
+    :environment: 'PROD'
+    :description: 'Satellite Activation Key'
+    :unlimited_content_hosts: 'true'
+    :releasever: '7Server'
