@@ -1,1 +1,0 @@
-require_relative 'methods/environments.rb'
