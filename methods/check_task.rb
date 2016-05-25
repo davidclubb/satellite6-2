@@ -3,6 +3,9 @@ require_relative 'call_rest.rb'
 
 # keep looping until we have a success response from the task status
 def check_task(retries, sleep_time, task_uuid)
+  # some logging
+  log(:info, "Waiting until task <#{task_uuid}> is complete")
+
   # get the main config
   main_config = YAML::load_file('../conf/main_config.yml')
 

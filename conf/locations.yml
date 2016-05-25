@@ -2,6 +2,11 @@
 :locations:
   AM:
     :description: 'Americas Region'
+    :domain: 'am.hedani.net'
+    :capsules:
+      'capsule.am.hedani.net':
+        - 'capsule1.am.hedani.net'
+        - 'capsule2.am.hednai.net'
   US:
     :description: 'United States'
     :parent: 'AM'
@@ -16,11 +21,13 @@
     :parent: 'AM/US/NYC'
   AP:
     :description: 'Asia Pacific Region'
+    :domain: 'ap.hedani.net'
   SG:
     :description: 'Singapore'
     :parent: 'AP'
   CH:
     :description: 'Switzerland Region'
+    :domain: 'ch.hedani.net'
   DVsZ:
     :description: 'Switzerland Development Zone'
     :parent: 'CH'
@@ -29,6 +36,7 @@
     :parent: 'CH'
   EA:
     :description: 'Europe, Middle East, and Africa Region'
+    :domain: 'ea.hedani.net'
   GB:
     :description: 'Great Britain'
     :parent: 'EA'

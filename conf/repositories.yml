@@ -5,9 +5,9 @@
     - Red Hat Enterprise Linux 7 Server (RPMs):
         :releasever: '7Server'
         :basearch: 'x86_64'
-      Red Hat Enterprise Linux 6 Server (RPMs):
-        :releasever: '6Server'
-        :basearch: 'x86_64'
+#      Red Hat Enterprise Linux 6 Server (RPMs):
+#        :releasever: '6Server'
+#        :basearch: 'x86_64'
       Red Hat Enterprise Linux 7 Server (Kickstart):
         :releasever: '7.2'
         :basearch: 'x86_64'

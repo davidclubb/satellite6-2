@@ -1,0 +1,7 @@
+---
+:host_groups:
+  HG_Capsule:
+    :operating_system: 'RedHat 7.2'
+    :ptable: 'PT_Capsule'
+    :content_view: 'CV_Capsule6'
+    :ptable_conf: 'capsule.conf'

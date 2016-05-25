@@ -1,0 +1,84 @@
+<%#
+kind: snippet
+name: network_team_setup
+oses:
+- RedHat 7
+%>
+
+#
+# Requirements:
+#   - Only 2 active network links
+#
+
+#============================================
+# set variables
+#============================================
+<%
+  network_team_name = 'team0'
+  network_file_prefix = '/etc/sysconfig/network-scripts/ifcfg-'
+%>
+
+#============================================
+# determine the active links
+#============================================
+
+# create a container for our active links
+NET_ACTIVE_LINKS=""
+
+# determine which links are active and push them into our container
+for INT in $(ls /sys/class/net | grep -v '^lo'); do
+  if [[ $(ethtool ${INT} | grep -i 'link detected' | awk '{print $NF}') == 'yes' ]]; then
+    NET_ACTIVE_LINKS+=" ${INT}"
+  fi
+done
+
+#============================================
+# create the team and slaves
+#============================================
+
+# disable network manager
+systemctl disable NetworkManager
+
+# create the team file
+cat >> "<%= network_file_prefix -%><%= network_team_name -%>" << EOF
+NAME=<%= network_team_name -%>
+DEVICE=<%= network_team_name -%>
+DEVICETYPE=Team
+TEAM_CONFIG='{"runner":{"name":"activebackup"}}'
+ONBOOT=YES
+BOOTPROTO=none
+IPADDR=<%= @host.ip -%>
+NETMASK=<%= subnet.mask -%>
+<% if !subnet.gateway.nil? && !subnet.gateway.empty? -%>
+GATEWAY=<%= subnet.gateway %>
+<% end -%>
+NM_CONTROLLED=no
+
+EOF
+
+# create the slaves to the team
+INDEX=0
+for INT in ${NET_ACTIVE_LINKS}; do
+  # get configs out of the network-scripts directory so they don't get activated
+  if [[ -f "<%= network_file_prefix -%>${INT}" ]]; then
+    f_run_cmd "mv -f <%= network_file_prefix -%>${INT} /root"
+  fi
+
+  # create the connection and bring up the interface
+  cat >> "<%= network_file_prefix -%><%= network_team_name -%>-p${INDEX}" << EOF
+NAME=<%= network_team_name -%>-p${INDEX}
+DEVICE=${INT}
+ONBOOT=yes
+BOOTPROTO=none
+DEVICETYPE=TeamPort
+TEAM_MASTER=<%= network_team_name -%>
+NM_CONTROLLED=no
+
+EOF
+
+# increment the index
+let "INDEX+=1"
+
+done
+
+# we could restart the network here, but we will let the reboot apply our changes

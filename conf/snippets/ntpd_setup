@@ -1,0 +1,51 @@
+<%#
+kind: snippet
+name: ntpd_setup
+oses:
+- RedHat 7
+%>
+
+#
+# Requirements:
+#   - ntp_preferred set as an array on @host.params
+#   - ntp_alt set as an array on @host.params
+#
+
+#============================================
+# set variables
+#============================================
+<%
+  ntp_file = '/etc/ntpd.conf'
+  ntp_service = 'ntpd'
+%>
+
+#============================================
+# set the ntp configuration
+#============================================
+
+# disable and stop chronyd
+for ACTION in disable stop; do systemctl ${ACTION} chronyd; done
+
+# backup and clear
+cp <%= ntp_file -%> <%= ntp_file -%>.bak
+echo '' > <%= ntp_file -%>
+
+# set the preferred servers
+<% @host.params['ntp_preferred'].each do |server| %>
+echo "<%= server -%>" >> <%= ntp_file -%>
+<% end -%>
+
+# set the alternate servers
+<% @host.params['ntp_alt'].each do |server| %>
+echo "<%= server -%>" >> <%= ntp_file -%>
+<% end -%>
+
+# set the ntp options
+echo "driftfile /var/ntp/ntp.drift" >> <%= ntp_file -%>
+echo "statsdir /var/ntp/ntpstats/" >> <%= ntp_file -%>
+echo "filegen peerstats file peerstats type week enable" >> <%= ntp_file -%>
+echo "restrict default noquery" >> <%= ntp_file -%>
+echo "restrict 127.0.0.1" >> <%= ntp_file -%>
+
+# enable and start ntpd
+for ACTION in enable start; do systemctl ${ACTION} ntpd; done

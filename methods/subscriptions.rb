@@ -9,6 +9,7 @@ begin
 
   require_relative 'call_rest.rb'
   require_relative 'get_org_id.rb'
+  require_relative 'check_task.rb'
   require 'yaml'
 
   # ====================================
@@ -17,7 +18,7 @@ begin
 
   # set method variables and log entering method
   @method = 'subscriptions.rb'
-  @debug = true
+  @debug = false
 
   # log entering method
   log(:info, "Entering method <#{@method}>")
@@ -31,10 +32,11 @@ begin
 
   # get configuration
   subscription_config = YAML::load_file('../conf/subscriptions.yml')
-  rhn_base_url = YAML::load_file('../conf/main_config.yml')[:rhn_base_url]
-  rhn_username = YAML::load_file('../conf/main_config.yml')[:rhn_username]
-  rhn_password = YAML::load_file('../conf/main_config.yml')[:rhn_password]
-  satellite_uuid = YAML::load_file('../conf/main_config.yml')[:rhn_satellite_uuid]
+  main_config = YAML::load_file('../conf/main_config.yml')
+  rhn_base_url = main_config[:rhn_base_url]
+  rhn_username = main_config[:rhn_username]
+  rhn_password = main_config[:rhn_password]
+  satellite_uuid = main_config[:rhn_satellite_uuid]
   raise 'Unable to determine rhn_base_url' if rhn_base_url.nil?
   raise 'Unable to determine satellite_uuid' if satellite_uuid.nil?
   raise 'Unable to determine @org_id from the get_org_id method' if @org_id.nil?
@@ -53,15 +55,15 @@ begin
 
   # setup parameters to download the subscription manifest
   rhn_params = {
-      :method => :get,
-      :url => "#{rhn_base_url}#{satellite_uuid}/export",
-      :verify_ssl => false,
-      :headers => {
-          :authorization => "Basic #{Base64.strict_encode64("#{rhn_username}:#{rhn_password}")}"
-      }
+    :method => :get,
+    :url => "#{rhn_base_url}#{satellite_uuid}/export",
+    :verify_ssl => false,
+    :headers => {
+      :authorization => "Basic #{Base64.strict_encode64("#{rhn_username}:#{rhn_password}")}"
+    }
   }
 
-  # download the manifest
+  # download the manifest from rhn
   log(:info, "Downloading manifest from url <#{rhn_params[:url]}>")
   File.open(subscription_config[:manifest_file], 'w') {|manifest|
     download_response = RestClient::Request.new(rhn_params).execute do |string|
@@ -71,27 +73,25 @@ begin
 
   # upload the manifest to satellite server
   sat_params = {
-      :method => :post,
-      :url => "https://172.16.177.185/katello/api/v2/organizations/#{@org_id}/subscriptions/upload",
-      :verify_ssl => false,
-      :headers => {
-          :authorization => "Basic #{Base64.strict_encode64("#{'admin'}:#{'OMGwtf!!!OMGwtf111'}")}"
-      },
-      :payload => {
-        :multipart => true,
-        :file => File.open(subscription_config[:manifest_file], 'rb')
-      }
+    :method => :post,
+    :url => "https://#{main_config[:rest_sat_server]}#{main_config[:rest_sat_default_suffix]}/organizations/#{@org_id}/subscriptions/upload",
+    :verify_ssl => false,
+    :headers => {
+      :authorization => "Basic #{Base64.strict_encode64("#{main_config[:rest_api_user]}:#{main_config[:rest_api_password]}")}",
+      :content_type => 'application/zip'
+    },
+    :payload => {
+      :multipart => true,
+      :content => File.open(subscription_config[:manifest_file], 'rb')
+    }
   }
-
-  #upload_response = RestClient.post(
-  #  "#{@rest_base_url}/organizations/#{@org_id}/subscriptions/upload",
-  #  :upload => {
-  #    :file => File.new(subscription_config[:manifest_file], 'rb')
-  #  }
-  #)
-  #upload_response = build_rest("organizations/#{@org_id}/subscriptions/upload", :post, { :file => File.new(subscription_config[:manifest_file], 'rb') })
-  upload_response = RestClient::Request.new(sat_params).execute
+  log(:info, "Uploading manifest file <#{subscription_config[:manifest_file]}> to URL <#{sat_params[:url]}>")
+  upload_response = JSON.parse(RestClient::Request.new(sat_params).execute)
   log(:info, "Inspecting upload_response: #{upload_response.inspect}") if @debug == true
+
+  # wait until the manifest upload completes
+  task = upload_response['id']
+  check_task(50, 10, task)
 
   # ====================================
   # log end of method
