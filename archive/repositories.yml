@@ -1,8 +1,0 @@
----
-:organization: 'Default Organization'
-:products:
-  Red Hat Enterprise Linux Server:
-    :repositories:
-    - Red Hat Enterprise Linux 7 Server (RPMs):
-        :releasever: '7Server'
-        :basearch: 'x86_64'
