@@ -1,0 +1,9 @@
+---
+:operating_system: 'RedHat 7.2'
+:templates:
+  :snippets:
+    - 'network_team_setup'
+    - 'ntpd_setup'
+  :kickstarts:
+    - 'KS_Capsule'
+

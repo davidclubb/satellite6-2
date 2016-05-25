@@ -10,6 +10,7 @@ begin
 
   require_relative 'call_rest.rb'
   require_relative 'get_org_id.rb'
+  require_relative 'org_update.rb'
   require 'yaml'
 
   # ====================================
@@ -67,6 +68,9 @@ begin
   # log entering main method
   log(:info, "Running main portion of ruby code on method: <#{@method}>")
 
+  # create a container for objects which will need to be updated at the org level after the hostgroup creation
+  pt_ids = []
+
   # get the environments and locations, as we will be creating them nested in the following format
   # HG_PARENT/HG_LOCATION/HG_ENV
   # NOTE: only using the last lifecycle environment in this case
@@ -119,6 +123,9 @@ begin
       }
       pt_response = build_rest('ptables', :post, payload )
       log(:info, "Inspecting pt_response: #{pt_response.inspect}") if @debug == true
+
+      # push the id into the partition table array
+      pt_ids.push(pt_response['id'])
     end
 
     # ====================================
@@ -172,6 +179,9 @@ begin
       end
     end
   end
+
+  # update the organization with the new partition tables
+  org_update({ :organization => { :ptable_ids => pt_ids } })
 
   # ====================================
   # log end of method

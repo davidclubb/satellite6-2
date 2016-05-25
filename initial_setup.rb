@@ -7,5 +7,6 @@
 require_relative 'methods/subscriptions.rb'
 require_relative 'methods/locations.rb'
 require_relative 'methods/repositories.rb'
+require_relative 'methods/environments.rb'
 require_relative 'methods/content_views.rb'
 require_relative 'methods/activation_keys.rb'

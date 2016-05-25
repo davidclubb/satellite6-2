@@ -1,0 +1,102 @@
+<%#
+kind: provision
+name: Satellite Capsule Kickstart Default
+oses:
+- RedHat 7
+%>
+
+#============================================
+# set variables
+#============================================
+<%
+  rhel_compatible = @host.operatingsystem.family == 'Redhat'
+  os_major = @host.operatingsystem.major.to_i
+  section_end = (rhel_compatible && os_major <= 5) ? '' : '%end'
+%>
+
+install
+auth --enableshadow --passalgo=sha512
+keyboard --vckeymap=<%= @host.params['vckeymap'] || 'us' %> --xlayouts=<%= @host.params['xlayouts'] || 'us' %>
+lang <%= @host.params['lang'] || 'en_US.UTF-8' %>
+network --hostname <%= @host %> --noipv6
+<%= @mediapath %>
+text
+selinux --enforcing
+rootpw --iscrypted <%= root_pass %>
+user --groups=1 --name=<%= @host.params['local_user'] || 'local' %> --password=<%= @host.params['local_user_pass'] || '' %> --iscrypted --uid=<%= @host.params['local_user_uid'] || '15' %>
+timezone <%= @host.params['time-zone'] || 'America/New_York' %> --isUtc
+ignoredisk --only-use <%= @host.params['install_disk'] || '/dev/sda' %>
+zerombr
+clearpart --all --drives <%= @host.params['install_disk'] || '/dev/sda' %>
+bootloader --location mbr
+reboot
+
+%packages --ignoremissing --nobase
+@core
+autogen-libopts
+bind-libs
+bind-utils
+device-mapper-multipath
+expect
+initscripts
+kexec-tools
+net-tools
+NetworkManager
+ntp
+ntpdate
+subscription-manager
+vim-enhanced
+wget
+<%= section_end -%>
+
+<% if @dynamic -%>
+%pre
+<%= @host.diskLayout %>
+<%= section_end -%>
+<% end -%>
+
+%post --nochroot
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+cp -va /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
+/usr/bin/chvt 1
+) 2>&1 | tee /mnt/sysimage/root/install.postnochroot.log
+<%= section_end -%>
+
+%post
+logger "Starting anaconda <%= @host %> postinstall"
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+#============================================
+# network setup
+#============================================
+<% if @host.params['network_team'] == true -%>
+<%= snippet "network_team_setup" %>
+<% end -%>
+
+#============================================
+# ntp setup
+#============================================
+echo "updating system time"
+/usr/sbin/ntpdate -sub <%= @host.params['ntp-server'] || '0.fedora.pool.ntp.org' %>
+/usr/sbin/hwclock --systohc
+
+#============================================
+# subscription-manager setup
+#============================================
+<%= snippet "subscription_manager_registration" %>
+
+
+#============================================
+# final yum update
+#============================================
+# update all the base packages from the updates repository
+yum update -y
+) 2>&1 | tee /root/install.post.log
+exit 0
+
+<%= section_end -%>

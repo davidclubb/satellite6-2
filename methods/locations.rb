@@ -11,6 +11,7 @@ begin
 
   require_relative 'call_rest.rb'
   require_relative 'get_org_id.rb'
+  require_relative 'org_update.rb'
   require 'yaml'
 
   # ====================================
@@ -143,14 +144,7 @@ begin
   end
 
   # update the organization with the new domain ids
-  payload = {
-    :organization => {
-      :domain_ids => dom_ids
-    }
-  }
-  log(:info, "Adding domain <#{attrs[:domain]}> with domain id <#{dom_ids}> to organization id <#{@org_id}>")
-  org_response = build_rest("organizations/#{@org_id}", :put, payload)
-  log(:info, "Insecting org_response: #{org_response.inspect}") if @debug == true
+  org_update({ :organization => { :domain_ids => dom_ids } })
 
   # ====================================
   # log end of method

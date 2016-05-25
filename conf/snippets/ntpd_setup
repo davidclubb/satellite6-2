@@ -26,7 +26,7 @@ oses:
 # disable and stop chronyd
 for ACTION in disable stop; do systemctl ${ACTION} chronyd; done
 
-# backup and clear
+# backup and clear ntp file
 cp <%= ntp_file -%> <%= ntp_file -%>.bak
 echo '' > <%= ntp_file -%>
 

@@ -1,6 +1,7 @@
 #
 # Description: Creates content views in an organization
 # TODO: code cleanup...duplicating lots of code
+# TODO: possibly search subscriptions for labels, rather than hard-setting names in yaml file
 #
 
 begin

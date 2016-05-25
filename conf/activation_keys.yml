@@ -7,7 +7,7 @@
     :unlimited_content_hosts: 'true'
     :releasever: '7Server'
     :subscriptions:
-      'Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)': 1
+      'Employee SKU': 1
       'Red Hat Satellite Capsule Beta': 1
     :product_content:
       'rhel-server-7-satellite-capsule-6-beta-rpms': 1
@@ -19,9 +19,8 @@
     :unlimited_content_hosts: 'true'
     :releasever: '7Server'
     :subscriptions:
-      'Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)': 1
-      'Red Hat Satellite Beta': 1
-      'Software Collections and Developer Toolset': 1
+      'Employee SKU': 1
+      'Red Hat Satellite Employee Subscription': 1
     :product_content:
       'rhel-server-7-satellite-6-beta-rpms': 1
       'rhel-7-server-rpms': 1
