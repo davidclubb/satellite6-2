@@ -1,7 +1,0 @@
----
-:locations:
-  Credit Suisse:
-    :description: 'Credit Suisse'
-    :parent: 'Raleigh'
-  Omaha:
-    :description: 'Omaha, NE'
